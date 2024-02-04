@@ -1,2 +1,2 @@
 @echo off
-java -jar target/code-generator-basic-1.0-SNAPSHOT-jar-with-dependencies.jar %*
+java -jar -Dfile.encoding=UTF-8 target/code-generator-basic-1.0-SNAPSHOT-jar-with-dependencies.jar %*
