@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.StrUtil;
 import com.enndfp.maker.generator.JarGenerator;
+import com.enndfp.maker.generator.ScriptGenerator;
 import com.enndfp.maker.generator.file.DynamicFileGenerator;
 import com.enndfp.maker.meta.Meta;
 import com.enndfp.maker.meta.MetaManager;
@@ -95,5 +96,11 @@ public class MainGenerator {
 
         // 构建 jar 包
         JarGenerator.doGenerate(outputPath);
+
+        // 封装脚本
+        String shellOutputFilePath = outputPath + File.separator + "generator";
+        String jarName = String.format("%s-%s-jar-with-dependencies.jar", meta.getName(), meta.getVersion());
+        String jarPath = "target/" + jarName;
+        ScriptGenerator.doGenerate(shellOutputFilePath, jarPath);
     }
 }
