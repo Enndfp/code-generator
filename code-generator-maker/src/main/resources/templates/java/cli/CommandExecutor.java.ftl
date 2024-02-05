@@ -1,29 +1,31 @@
-package com.enndfp.maker.cli;
+package ${basePackage}.cli;
 
-import com.enndfp.maker.cli.command.ConfigCommand;
-import com.enndfp.maker.cli.command.GenerateCommand;
-import com.enndfp.maker.cli.command.ListCommand;
+import ${basePackage}.cli.command.GenerateCommand;
+import ${basePackage}.cli.command.ListCommand;
+import ${basePackage}.cli.command.ConfigCommand;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
 /**
  * 主命令执行器
  *
- * @author Enndfp
+ * @author ${author}
  */
-@CommandLine.Command(name = "code", mixinStandardHelpOptions = true)
+@Command(name = "${name}", mixinStandardHelpOptions = true)
 public class CommandExecutor implements Runnable {
 
     private final CommandLine commandLine;
 
     {
         commandLine = new CommandLine(this)
-                .addSubcommand(new ConfigCommand())
                 .addSubcommand(new GenerateCommand())
+                .addSubcommand(new ConfigCommand())
                 .addSubcommand(new ListCommand());
     }
 
     @Override
     public void run() {
+        // 不输入子命令时，给出友好提示
         System.out.println("请输入具体命令，或者输入 --help 查看帮助手册");
     }
 
