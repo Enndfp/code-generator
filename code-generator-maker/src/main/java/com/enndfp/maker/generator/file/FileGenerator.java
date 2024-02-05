@@ -1,6 +1,5 @@
 package com.enndfp.maker.generator.file;
 
-import com.enndfp.maker.model.DataModel;
 import freemarker.template.TemplateException;
 
 import java.io.File;
@@ -34,14 +33,5 @@ public class FileGenerator {
         String inputDynamicFilePath = projectPath + "/src/main/resources/templates/MainTemplate.java.ftl".replace("/", File.separator);
         String outputDynamicFilePath = outputPath + "/acm-template/src/com/enndfp/acm/MainTemplate.java".replace("/", File.separator);
         DynamicFileGenerator.doGenerate(inputDynamicFilePath, outputDynamicFilePath, model);
-    }
-
-    public static void main(String[] args) throws TemplateException, IOException {
-        DataModel dataModel = new DataModel();
-        dataModel.setLoop(true);
-        dataModel.setAuthor("Enndfp");
-        dataModel.setOutputText("求和结果: ");
-
-        doGenerate(dataModel);
     }
 }

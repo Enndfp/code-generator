@@ -10,7 +10,7 @@ import java.io.*;
 public class JarGenerator {
 
     public static void doGenerate(String projectDir) throws IOException, InterruptedException {
-        // 清理之前的构建 并打包
+        // 清理之前的构建并打包
         // 不同操作系统，执行的命令也不同 maven 打包
         String mavenCommand;
         if (System.getProperty("os.name").contains("Windows")) {
@@ -31,7 +31,6 @@ public class JarGenerator {
             if (line.contains("INFO")) {
                 // 设置日志级别为蓝色
                 System.out.println("\033[0;34m" + line + "\033[0m");
-
             } else if (line.contains("WARN")) {
                 // 设置日志级别为黄色
                 System.out.println("\033[0;33m" + line + "\033[0m");
@@ -46,9 +45,5 @@ public class JarGenerator {
         System.out.println("打包结束!");
         int exitCode = process.waitFor();
         System.out.println("命令执行结束,退出码:" + exitCode);
-    }
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-        doGenerate("E:\\planet\\code-generator\\code-generator-basic");
     }
 }

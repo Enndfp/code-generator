@@ -1,6 +1,5 @@
 package ${basePackage}.generator;
 
-import ${basePackage}.model.DataModel;
 import freemarker.template.TemplateException;
 
 import java.io.File;

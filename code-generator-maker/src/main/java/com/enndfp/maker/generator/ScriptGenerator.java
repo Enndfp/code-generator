@@ -18,6 +18,15 @@ public class ScriptGenerator {
 
     public static void doGenerate(String outputPath, String jarPath) {
 
+        /**
+         * Windows：
+         *         @echo off
+         *         java -jar -Dfile.encoding=UTF-8 target/acm-template-pro-generator-1.0-jar-with-dependencies.jar %*
+         * Linux：
+         *         #!/bin/bash
+         *         java -jar -Dfile.encoding=UTF-8 target/acm-template-pro-generator-1.0-jar-with-dependencies.jar "$@"
+         */
+
         StringBuilder sb = new StringBuilder();
         // 根据系统类型生成脚本 windows
         sb.append("@echo off").append("\n");
