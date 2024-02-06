@@ -24,7 +24,7 @@ public class JarGenerator {
         Process process = new ProcessBuilder(mavenCommand.split(" ")).directory(new File(projectDir)).start();
 
         InputStream inputStream = process.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "GBK"));
         String line;
         while ((line = reader.readLine()) != null) {
             // 根据日志级别设置颜色
