@@ -5,6 +5,7 @@
   "version": "1.0",
   "author": "enndfp",
   "createTime": "2024-02-05",
+  "forcedInteractive": false,
   "fileConfig": {
     "inputRootPath": ".source/acm-template-pro",
     "outputRootPath": "generated",
@@ -37,14 +38,14 @@
         "fieldName": "loop",
         "type": "boolean",
         "description": "是否生成循环",
-        "defaultValue": false,
+        "defaultValue": true,
         "abbr": "l"
       },
       {
         "fieldName": "author",
         "type": "String",
         "description": "作者名称",
-        "defaultValue": "enndfp",
+        "defaultValue": "Enndfp",
         "abbr": "a"
       },
       {

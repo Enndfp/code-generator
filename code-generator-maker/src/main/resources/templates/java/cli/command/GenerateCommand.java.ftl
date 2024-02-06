@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
  * @author ${author}
  */
 @Data
-@Command(name = "generate", description = "生成代码", mixinStandardHelpOptions = true)
+@Command(name = "generate", description = "生成代码", version = "1.0", mixinStandardHelpOptions = true)
 public class GenerateCommand implements Callable<Integer> {
 <#list modelConfig.models as modelInfo>
 

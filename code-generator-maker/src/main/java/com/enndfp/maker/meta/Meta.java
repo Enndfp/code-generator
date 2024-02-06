@@ -20,6 +20,7 @@ public class Meta {
     private String version;
     private String author;
     private String createTime;
+    private Boolean forcedInteractive;
     private FileConfig fileConfig;
     private ModelConfig modelConfig;
 
