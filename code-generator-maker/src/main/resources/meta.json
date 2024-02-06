@@ -6,8 +6,9 @@
   "author": "enndfp",
   "createTime": "2024-02-05",
   "fileConfig": {
-    "inputRootPath": "E:/planet/code-generator/code-generator-demo-projects/acm-template-pro",
+    "inputRootPath": ".source/acm-template-pro",
     "outputRootPath": "generated",
+    "sourceRootPath": "E:/planet/code-generator/code-generator-demo-projects/acm-template-pro",
     "type": "dir",
     "files": [
       {
