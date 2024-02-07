@@ -3,6 +3,7 @@ package com.enndfp.maker.generator.main;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.StrUtil;
+import com.enndfp.maker.generator.GitGenerator;
 import com.enndfp.maker.generator.JarGenerator;
 import com.enndfp.maker.generator.ScriptGenerator;
 import com.enndfp.maker.generator.file.DynamicFileGenerator;
@@ -125,5 +126,12 @@ public class MainGenerator {
         FileUtil.copy(shellOutputFilePath + ".bat", distOutputPath, true);
         // - 拷贝源模板文件
         FileUtil.copy(sourceCopyDestPath, distOutputPath, true);
+
+        // 版本控制
+        if (meta.getVersionControl()) {
+            GitGenerator.doGenerate(outputPath);
+            inputFilePath = inputResourcePath + File.separator + "templates/static/.gitignore";
+            FileUtil.copyFile(inputFilePath, outputPath);
+        }
     }
 }

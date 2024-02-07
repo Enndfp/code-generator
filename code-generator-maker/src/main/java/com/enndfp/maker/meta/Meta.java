@@ -20,9 +20,16 @@ public class Meta {
     private String version;
     private String author;
     private String createTime;
-    private Boolean forcedInteractive;
     private FileConfig fileConfig;
     private ModelConfig modelConfig;
+    /**
+     * 强交互式
+     */
+    private Boolean forcedInteractive;
+    /**
+     * 版本控制
+     */
+    private Boolean versionControl;
 
     @NoArgsConstructor
     @Data

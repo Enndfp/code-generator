@@ -6,6 +6,7 @@
   "author": "Enndfp",
   "createTime": "2024-02-05",
   "forcedInteractive": true,
+  "versionControl": true,
   "fileConfig": {
     "inputRootPath": ".source/acm-template-pro",
     "outputRootPath": "generated",
