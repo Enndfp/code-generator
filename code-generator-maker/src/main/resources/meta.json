@@ -3,9 +3,9 @@
   "description": "ACM 示例模板生成器",
   "basePackage": "com.enndfp",
   "version": "1.0",
-  "author": "enndfp",
+  "author": "Enndfp",
   "createTime": "2024-02-05",
-  "forcedInteractive": false,
+  "forcedInteractive": true,
   "fileConfig": {
     "inputRootPath": ".source/acm-template-pro",
     "outputRootPath": "generated",
