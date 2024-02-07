@@ -131,7 +131,7 @@ public class MainGenerator {
         if (meta.getVersionControl()) {
             GitGenerator.doGenerate(outputPath);
             inputFilePath = inputResourcePath + File.separator + "templates/static/.gitignore";
-            FileUtil.copyFile(inputFilePath, outputPath);
+            FileUtil.copy(inputFilePath, outputPath, true);
         }
     }
 }
