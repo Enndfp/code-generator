@@ -5,8 +5,8 @@
   "version": "1.0",
   "author": "Enndfp",
   "createTime": "2024-02-05",
-  "forcedInteractive": true,
-  "versionControl": true,
+  "forcedInteractive": false,
+  "versionControl": false,
   "fileConfig": {
     "inputRootPath": ".source/acm-template-pro",
     "outputRootPath": "generated",
@@ -23,7 +23,8 @@
         "inputPath": ".gitignore",
         "outputPath": ".gitignore",
         "type": "file",
-        "generateType": "static"
+        "generateType": "static",
+        "condition": "needGit"
       },
       {
         "inputPath": "README.md",
@@ -35,6 +36,13 @@
   },
   "modelConfig": {
     "models": [
+      {
+        "fieldName": "needGit",
+        "type": "boolean",
+        "description": "是否生成 .gitignore 文件",
+        "defaultValue": true,
+        "abbr": "n"
+      },
       {
         "fieldName": "loop",
         "type": "boolean",
