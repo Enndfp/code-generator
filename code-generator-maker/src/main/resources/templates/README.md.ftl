@@ -47,20 +47,35 @@ Windows
 
 示例:
 ``` bash
-./generator generate <#list modelConfig.models as modelInfo>-${modelInfo.abbr} </#list>
+./generator generate <#list modelConfig.models as modelInfo><#if modelInfo.groupKey??><#else>-${modelInfo.abbr} </#if></#list>
 ```
 
 #### 2. 参数说明:
-<#list modelConfig.models as modelInfo>
-##### (${modelInfo?index + 1}) ${modelInfo.fieldName}
+<#list modelConfig.models  as modelInfo>
+<#if modelInfo.groupKey??>
+## ${modelInfo.groupName}
+<#list modelInfo.models as subModelInfo>
+#### ${subModelInfo?index + 1}) ${subModelInfo.fieldName}
 
-    类型: ${modelInfo.type}
+类型: ${subModelInfo.type}
 
-    描述: ${modelInfo.description}
+描述: ${subModelInfo.description}
 
-    默认值: ${modelInfo.defaultValue?c}
+默认值: ${subModelInfo.defaultValue?c}
 
-    命令缩写: -${modelInfo.abbr}
+命令缩写: ${subModelInfo.abbr}
+</#list>
+<#else >
+#### ${modelInfo?index + 1}) ${modelInfo.fieldName}
+
+类型: ${modelInfo.type}
+
+描述: ${modelInfo.description}
+
+默认值: ${modelInfo.defaultValue?c}
+
+命令缩写: ${modelInfo.abbr}
+</#if>
 </#list>
 
 <strong>注: forcedInteractive 配置项若开启则是强交互式，关闭则是弱交互式</strong>
