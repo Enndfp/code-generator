@@ -1,5 +1,6 @@
 package com.enndfp.maker.template;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
@@ -14,9 +15,7 @@ import com.enndfp.maker.template.model.TemplateMakerFileConfig;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -55,7 +54,7 @@ public class TemplateMaker {
         String originProjectPath = FileUtil.normalize(new File(projectPath).getParent() + File.separator + "code-generator-demo-projects" + File.separator + "springboot-init");
 
         String fileInputPath1 = "src/main/java/com/enndfp/springbootinit/common";
-        String fileInputPath2 = "src/main/java/com/enndfp/springbootinit/controller";
+        String fileInputPath2 = "src/main/java/com/enndfp/springbootinit/constant";
 
 
         // 输入模型参数信息 1
@@ -86,6 +85,13 @@ public class TemplateMaker {
         fileInfoConfig2.setFilterConfigList(configArrayList2);
 
         makerFileConfig.setFileInfoConfigList(Arrays.asList(fileInfoConfig1, fileInfoConfig2));
+
+        // 配置分组
+        TemplateMakerFileConfig.FileGroupConfig fileGroupConfig = new TemplateMakerFileConfig.FileGroupConfig();
+        fileGroupConfig.setGroupKey("controller2");
+        fileGroupConfig.setGroupName("测试分组");
+        fileGroupConfig.setCondition("groupName == 'controller'");
+        makerFileConfig.setFileGroupConfig(fileGroupConfig);
 
         TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, modelInfo, searchStr, 1L);
     }
@@ -137,6 +143,25 @@ public class TemplateMaker {
                 Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(file, modelInfo, searchStr, sourceRootPath);
                 newFileInfoList.add(fileInfo);
             }
+        }
+
+        // 如果是文件组配置，则需要将文件信息添加到组中
+        TemplateMakerFileConfig.FileGroupConfig fileGroupConfig = templateMakerFileConfig.getFileGroupConfig();
+        if (fileGroupConfig != null) {
+            String groupKey = fileGroupConfig.getGroupKey();
+            String groupName = fileGroupConfig.getGroupName();
+            String condition = fileGroupConfig.getCondition();
+
+            // 新增组配置
+            Meta.FileConfig.FileInfo fileGroup = new Meta.FileConfig.FileInfo();
+            fileGroup.setGroupKey(groupKey);
+            fileGroup.setGroupName(groupName);
+            fileGroup.setCondition(condition);
+            fileGroup.setType(FileTypeEnum.GROUP.getValue());
+
+            fileGroup.setFiles(newFileInfoList);
+            newFileInfoList = new ArrayList<>();
+            newFileInfoList.add(fileGroup);
         }
 
         // 3. 使用输入信息来创建 meta.json 元信息文件
@@ -228,24 +253,58 @@ public class TemplateMaker {
     /**
      * 文件去重
      *
-     * @param files 文件列表
+     * @param fileInfoList 文件列表
      * @return 去重后的文件列表
      */
-    public static List<Meta.FileConfig.FileInfo> distinctFiles(List<Meta.FileConfig.FileInfo> files) {
-        return new ArrayList<>(files.stream()
+    public static List<Meta.FileConfig.FileInfo> distinctFiles(List<Meta.FileConfig.FileInfo> fileInfoList) {
+        // 策略：同组内文件合并，不同分组保留
+
+        // 1. 有分组的，以组为单位划分
+        Map<String, List<Meta.FileConfig.FileInfo>> groupKeyFileInfoListMap = fileInfoList
+                .stream()
+                .filter(fileInfo -> StrUtil.isNotBlank(fileInfo.getGroupKey()))
+                .collect(
+                        Collectors.groupingBy(Meta.FileConfig.FileInfo::getGroupKey)
+                );
+
+        // 2. 同组内的文件配置合并
+        // 保存每个组对应的合并后的对象 map
+        Map<String, Meta.FileConfig.FileInfo> groupKeyMergedFileInfoMap = new HashMap<>();
+        for (Map.Entry<String, List<Meta.FileConfig.FileInfo>> entry : groupKeyFileInfoListMap.entrySet()) {
+            List<Meta.FileConfig.FileInfo> tempFileInfoList = entry.getValue();
+            ArrayList<Meta.FileConfig.FileInfo> newFileInfoList = new ArrayList<>(tempFileInfoList.stream()
+                    .flatMap(fileInfo -> fileInfo.getFiles().stream())
+                    .collect(
+                            Collectors.toMap(Meta.FileConfig.FileInfo::getInputPath, Function.identity(), (existing, replacement) -> replacement)
+                    ).values());
+            // 使用新的 group 配置
+            Meta.FileConfig.FileInfo newFileInfo = CollUtil.getLast(tempFileInfoList);
+            newFileInfo.setFiles(newFileInfoList);
+            String groupKey = entry.getKey();
+            groupKeyMergedFileInfoMap.put(groupKey, newFileInfo);
+        }
+
+        // 3. 将文件分组添加到结果列表
+        List<Meta.FileConfig.FileInfo> resultList = new ArrayList<>(groupKeyMergedFileInfoMap.values());
+
+        // 4. 将未分组的文件添加到结果列表
+        List<Meta.FileConfig.FileInfo> noGroupFileInfoList = fileInfoList.stream().filter(fileInfo -> StrUtil.isBlank(fileInfo.getGroupKey()))
+                .collect(Collectors.toList());
+        resultList.addAll(new ArrayList<>(noGroupFileInfoList.stream()
                 .collect(
                         Collectors.toMap(Meta.FileConfig.FileInfo::getInputPath, Function.identity(), (existing, replacement) -> replacement)
-                ).values());
+                ).values()));
+        return resultList;
     }
 
     /**
      * 模型去重
      *
-     * @param models 模型列表
+     * @param modelInfoList 模型列表
      * @return 去重后的模型列表
      */
-    public static List<Meta.ModelConfig.ModelInfo> distinctModels(List<Meta.ModelConfig.ModelInfo> models) {
-        return new ArrayList<>(models.stream()
+    public static List<Meta.ModelConfig.ModelInfo> distinctModels(List<Meta.ModelConfig.ModelInfo> modelInfoList) {
+        return new ArrayList<>(modelInfoList.stream()
                 .collect(
                         Collectors.toMap(Meta.ModelConfig.ModelInfo::getFieldName, Function.identity(), (existing, replacement) -> replacement)
                 ).values());

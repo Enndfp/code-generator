@@ -18,6 +18,11 @@ public class TemplateMakerFileConfig {
      */
     private List<FileInfoConfig> fileInfoConfigList;
 
+    /**
+     * 文件分组配置
+     */
+    private FileGroupConfig fileGroupConfig;
+
     @Data
     @NoArgsConstructor
     public static class FileInfoConfig {
@@ -31,5 +36,25 @@ public class TemplateMakerFileConfig {
          * 文件过滤配置
          */
         private List<FileFilterConfig> filterConfigList;
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class FileGroupConfig {
+
+        /**
+         * 组的唯一标识
+         */
+        private String groupKey;
+
+        /**
+         * 组的名称
+         */
+        private String groupName;
+
+        /**
+         * 控制该组的生成条件
+         */
+        private String condition;
     }
 }
