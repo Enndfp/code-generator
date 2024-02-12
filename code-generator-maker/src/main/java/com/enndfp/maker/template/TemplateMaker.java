@@ -7,6 +7,10 @@ import cn.hutool.json.JSONUtil;
 import com.enndfp.maker.meta.Meta;
 import com.enndfp.maker.meta.enums.FileGenerateTypeEnum;
 import com.enndfp.maker.meta.enums.FileTypeEnum;
+import com.enndfp.maker.template.enums.FileFilterRangeEnum;
+import com.enndfp.maker.template.enums.FileFilterRuleEnum;
+import com.enndfp.maker.template.model.FileFilterConfig;
+import com.enndfp.maker.template.model.TemplateMakerFileConfig;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -41,34 +45,6 @@ public class TemplateMaker {
     public static final String USER_DIR = "user.dir";
 
     public static void main(String[] args) {
-//        // 1. 提供输入参数：包括生成器基本信息、原始项目目录、原始文件、模型参数
-//        Meta meta = new Meta();
-//        // 基本信息
-//        meta.setName("acm-template-generator");
-//        meta.setDescription("ACM 示例模版生成器");
-//
-//        String projectPath = System.getProperty(USER_DIR);
-//        String originProjectPath = FileUtil.normalize(new File(projectPath).getParent() + File.separator + "code-generator-demo-projects" + File.separator + "acm-template");
-//
-//        String fileInputPath = "src/com/enndfp/acm/MainTemplate.java";
-//
-//        // 输入模型参数信息 1
-//        Meta.ModelConfig.ModelInfo modelInfo = new Meta.ModelConfig.ModelInfo();
-//        modelInfo.setFieldName("outputText");
-//        modelInfo.setDefaultValue("Sum: ");
-//        modelInfo.setType("String");
-//        String searchStr = "Sum: ";
-//
-//        // 输入模型参数信息 2
-//        Meta.ModelConfig.ModelInfo modelInfo2 = new Meta.ModelConfig.ModelInfo();
-//        modelInfo2.setFieldName("className");
-//        modelInfo2.setDefaultValue("MainTemplate");
-//        modelInfo2.setType("String");
-//        String searchStr2 = "MainTemplate";
-//
-//        long id = TemplateMaker.makeTemplate(meta, originProjectPath, fileInputPath, modelInfo, searchStr, null);
-//        TemplateMaker.makeTemplate(meta, originProjectPath, fileInputPath, modelInfo2, searchStr2, id);
-
         System.out.println("---------------------------------    测试Spring boot init 项目    ----------------------------------------------------");
         Meta meta = new Meta();
         // 基本信息
@@ -89,21 +65,48 @@ public class TemplateMaker {
         modelInfo.setType("String");
         String searchStr = "BaseResponse";
 
-        TemplateMaker.makeTemplate(meta, originProjectPath, Arrays.asList(fileInputPath1, fileInputPath2), modelInfo, searchStr, 1L);
+        TemplateMakerFileConfig makerFileConfig = new TemplateMakerFileConfig();
+        TemplateMakerFileConfig.FileInfoConfig fileInfoConfig1 = new TemplateMakerFileConfig.FileInfoConfig();
+        fileInfoConfig1.setPath(fileInputPath1);
+        ArrayList<FileFilterConfig> configArrayList = new ArrayList<>();
+        FileFilterConfig filterConfig1 = FileFilterConfig.builder()
+                .range(FileFilterRangeEnum.FILE_NAME.getValue())
+                .rule(FileFilterRuleEnum.CONTAINS.getValue())
+                .value("Base")
+                .build();
+        configArrayList.add(filterConfig1);
+        fileInfoConfig1.setFilterConfigList(configArrayList);
+
+        TemplateMakerFileConfig.FileInfoConfig fileInfoConfig2 = new TemplateMakerFileConfig.FileInfoConfig();
+        fileInfoConfig2.setPath(fileInputPath2);
+        ArrayList<FileFilterConfig> configArrayList2 = new ArrayList<>();
+        FileFilterConfig filterConfig2 = FileFilterConfig.builder()
+                .build();
+        configArrayList2.add(filterConfig2);
+        fileInfoConfig2.setFilterConfigList(configArrayList2);
+
+        makerFileConfig.setFileInfoConfigList(Arrays.asList(fileInfoConfig1, fileInfoConfig2));
+
+        TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, modelInfo, searchStr, 1L);
     }
 
     /**
      * 生成模板
      *
-     * @param newMeta           元信息
-     * @param originProjectPath 原始项目目录
-     * @param fileInputPathList 文件输入路径列表
-     * @param modelInfo         模型参数
-     * @param searchStr         搜索字符串
-     * @param id                模板 id
+     * @param newMeta                 元信息
+     * @param originProjectPath       原始项目目录
+     * @param templateMakerFileConfig 原始文件列表 + 过滤配置
+     * @param modelInfo               模型参数
+     * @param searchStr               搜索字符串
+     * @param id                      模板 id
      * @return 模板 id
      */
-    public static long makeTemplate(Meta newMeta, String originProjectPath, List<String> fileInputPathList, Meta.ModelConfig.ModelInfo modelInfo, String searchStr, Long id) {
+    public static long makeTemplate(Meta newMeta,
+                                    String originProjectPath,
+                                    TemplateMakerFileConfig templateMakerFileConfig,
+                                    Meta.ModelConfig.ModelInfo modelInfo,
+                                    String searchStr,
+                                    Long id) {
         // 没有 id 则生成
         if (id == null) {
             id = IdUtil.getSnowflakeNextId();
@@ -122,17 +125,16 @@ public class TemplateMaker {
         String sourceRootPath = FileUtil.normalize(templatePath + File.separator + FileUtil.getLastPathEle(Paths.get(originProjectPath)));
 
         // 生成模版文件
+        List<TemplateMakerFileConfig.FileInfoConfig> infoConfigList = templateMakerFileConfig.getFileInfoConfigList();
         List<Meta.FileConfig.FileInfo> newFileInfoList = new ArrayList<>();
-        for (String fileInputPath : fileInputPathList) {
-            String inputFileAbsolutePath = sourceRootPath + File.separator + fileInputPath;
-            if (FileUtil.isDirectory(inputFileAbsolutePath)) {
-                List<File> files = FileUtil.loopFiles(inputFileAbsolutePath);
-                for (File file : files) {
-                    Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(file, modelInfo, searchStr, sourceRootPath);
-                    newFileInfoList.add(fileInfo);
-                }
-            } else {
-                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(new File(inputFileAbsolutePath), modelInfo, searchStr, sourceRootPath);
+
+        for (TemplateMakerFileConfig.FileInfoConfig fileInfoConfig : infoConfigList) {
+            String fileInputPath = fileInfoConfig.getPath();
+            String inputFileAbsolutePath = FileUtil.normalize(sourceRootPath + File.separator + fileInputPath);
+
+            List<File> fileList = FileFilter.doFilter(inputFileAbsolutePath, fileInfoConfig.getFilterConfigList());
+            for (File file : fileList) {
+                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(file, modelInfo, searchStr, sourceRootPath);
                 newFileInfoList.add(fileInfo);
             }
         }
