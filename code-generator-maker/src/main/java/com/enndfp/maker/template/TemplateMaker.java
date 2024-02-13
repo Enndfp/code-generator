@@ -220,8 +220,8 @@ public class TemplateMaker {
 
         // 构造文件信息
         Meta.FileConfig.FileInfo fileInfo = new Meta.FileConfig.FileInfo();
-        fileInfo.setInputPath(fileInputPath);
-        fileInfo.setOutputPath(fileOutputPath);
+        fileInfo.setInputPath(fileOutputPath);
+        fileInfo.setOutputPath(fileInputPath);
         fileInfo.setType(FileTypeEnum.FILE.getValue());
         fileInfo.setGenerateType(FileGenerateTypeEnum.DYNAMIC.getValue());
 
@@ -237,7 +237,7 @@ public class TemplateMaker {
             // 不存在模版而且没有更改过文件内容
             if (contentEquals) {
                 fileInfo.setGenerateType(FileGenerateTypeEnum.STATIC.getValue());
-                fileInfo.setOutputPath(fileInputPath);
+                fileInfo.setInputPath(fileInputPath);
             } else {
                 FileUtil.writeUtf8String(newFileContent, fileOutputAbsolutePath);
             }
@@ -270,7 +270,7 @@ public class TemplateMaker {
             ArrayList<Meta.FileConfig.FileInfo> newFileInfoList = new ArrayList<>(tempFileInfoList.stream()
                     .flatMap(fileInfo -> fileInfo.getFiles().stream())
                     .collect(
-                            Collectors.toMap(Meta.FileConfig.FileInfo::getInputPath, Function.identity(), (existing, replacement) -> replacement)
+                            Collectors.toMap(Meta.FileConfig.FileInfo::getOutputPath, Function.identity(), (existing, replacement) -> replacement)
                     ).values());
             // 使用新的 group 配置
             Meta.FileConfig.FileInfo newFileInfo = CollUtil.getLast(tempFileInfoList);
@@ -287,7 +287,7 @@ public class TemplateMaker {
                 .collect(Collectors.toList());
         resultList.addAll(new ArrayList<>(noGroupFileInfoList.stream()
                 .collect(
-                        Collectors.toMap(Meta.FileConfig.FileInfo::getInputPath, Function.identity(), (existing, replacement) -> replacement)
+                        Collectors.toMap(Meta.FileConfig.FileInfo::getOutputPath, Function.identity(), (existing, replacement) -> replacement)
                 ).values()));
         return resultList;
     }
