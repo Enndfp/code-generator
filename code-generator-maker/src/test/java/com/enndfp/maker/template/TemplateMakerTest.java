@@ -91,4 +91,41 @@ public class TemplateMakerTest {
         System.out.println("---------------------------------    测试完成Spring boot init 项目    ----------------------------------------------------");
 
     }
+
+    @Test
+    public void makeTemplateBug2() {
+        System.out.println("-------------------    测试Spring boot init 项目  makeTemplateBug2   ------------------");
+        Meta meta = new Meta();
+        // 基本信息
+        meta.setName("spring boot init ");
+        meta.setDescription("spring boot 初始化项目");
+
+        String projectPath = System.getProperty("user.dir");
+        String originProjectPath = FileUtil.normalize(new File(projectPath).getParent() + File.separator + "code-generator-demo-projects" + File.separator + "springboot-init");
+
+        String fileInputPath2 = "src/main/java/com/enndfp/springbootinit/common";
+
+        TemplateMakerModelConfig templateMakerModelConfig = new TemplateMakerModelConfig();
+        ArrayList<TemplateMakerModelConfig.ModelInfoConfig> modelInfoConfigList = new ArrayList<>();
+
+        TemplateMakerModelConfig.ModelInfoConfig modelInfoConfig1 = new TemplateMakerModelConfig.ModelInfoConfig();
+        modelInfoConfig1.setFieldName("className");
+        modelInfoConfig1.setType("String");
+        modelInfoConfig1.setDescription("类名替换");
+        modelInfoConfig1.setReplaceText("BaseResponse");
+        modelInfoConfigList.add(modelInfoConfig1);
+
+        templateMakerModelConfig.setModels(modelInfoConfigList);
+
+
+        TemplateMakerFileConfig makerFileConfig = new TemplateMakerFileConfig();
+        TemplateMakerFileConfig.FileInfoConfig fileInfoConfig = new TemplateMakerFileConfig.FileInfoConfig();
+        fileInfoConfig.setPath(fileInputPath2);
+        makerFileConfig.setFileInfoConfigList(Collections.singletonList(fileInfoConfig));
+
+        long id = TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, templateMakerModelConfig, 1753283378534051840L);
+        System.out.println("id:" + id);
+
+        System.out.println("---------------------    测试完成Spring boot init 项目   makeTemplateBug2 -----------------------");
+    }
 }

@@ -110,6 +110,8 @@ public class TemplateMaker {
             String inputFileAbsolutePath = FileUtil.normalize(sourceRootPath + File.separator + fileInputPath);
 
             List<File> fileList = FileFilter.doFilter(inputFileAbsolutePath, fileInfoConfig.getFilterConfigList());
+            // 生成过的 FTL 模版文件不需要再生成元信息配置
+            fileList = fileList.stream().filter(file -> !file.getAbsolutePath().endsWith(TEMPLATE_FILE_SUFFIX)).collect(Collectors.toList());
             for (File file : fileList) {
                 Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(file, templateMakerModelConfig, sourceRootPath);
                 newFileInfoList.add(fileInfo);
