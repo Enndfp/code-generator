@@ -12,6 +12,7 @@ import com.enndfp.maker.meta.enums.FileTypeEnum;
 import com.enndfp.maker.template.enums.FileFilterRangeEnum;
 import com.enndfp.maker.template.enums.FileFilterRuleEnum;
 import com.enndfp.maker.template.model.FileFilterConfig;
+import com.enndfp.maker.template.model.TemplateMakerConfig;
 import com.enndfp.maker.template.model.TemplateMakerFileConfig;
 import com.enndfp.maker.template.model.TemplateMakerModelConfig;
 
@@ -48,6 +49,21 @@ public class TemplateMaker {
     /**
      * 生成模板
      *
+     * @param templateMakerConfig 模板制作配置
+     * @return id
+     */
+    public static long makeTemplate(TemplateMakerConfig templateMakerConfig) {
+        Meta meta = templateMakerConfig.getMeta();
+        String originProjectPath = templateMakerConfig.getOriginProjectPath();
+        TemplateMakerFileConfig templateMakerFileConfig = templateMakerConfig.getFileConfig();
+        TemplateMakerModelConfig templateMakerModelConfig = templateMakerConfig.getModelConfig();
+        Long id = templateMakerConfig.getId();
+        return makeTemplate(meta, originProjectPath, templateMakerFileConfig, templateMakerModelConfig, id);
+    }
+
+    /**
+     * 生成模板
+     *
      * @param newMeta                  元信息
      * @param originProjectPath        原始项目目录
      * @param templateMakerFileConfig  原始文件列表 + 过滤配置
@@ -78,7 +94,7 @@ public class TemplateMaker {
         String sourceRootPath = FileUtil.normalize(templatePath + File.separator + FileUtil.getLastPathEle(Paths.get(originProjectPath)));
 
         // 生成模版文件
-        List<TemplateMakerFileConfig.FileInfoConfig> infoConfigList = templateMakerFileConfig.getFileInfoConfigList();
+        List<TemplateMakerFileConfig.FileInfoConfig> infoConfigList = templateMakerFileConfig.getFiles();
         List<Meta.FileConfig.FileInfo> newFileInfoList = new ArrayList<>();
 
         // 模型处理

@@ -1,10 +1,13 @@
 package com.enndfp.maker.template;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.json.JSONUtil;
 import com.enndfp.maker.meta.Meta;
 import com.enndfp.maker.template.enums.FileFilterRangeEnum;
 import com.enndfp.maker.template.enums.FileFilterRuleEnum;
 import com.enndfp.maker.template.model.FileFilterConfig;
+import com.enndfp.maker.template.model.TemplateMakerConfig;
 import com.enndfp.maker.template.model.TemplateMakerFileConfig;
 import com.enndfp.maker.template.model.TemplateMakerModelConfig;
 import org.junit.Test;
@@ -12,8 +15,6 @@ import org.junit.Test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import static org.junit.Assert.*;
 
 /**
  * 测试同配置多次生成时，强制变为静态生成
@@ -75,7 +76,7 @@ public class TemplateMakerTest {
         configArrayList2.add(filterConfig2);
         fileInfoConfig1.setFilterConfigList(configArrayList2);
 
-        makerFileConfig.setFileInfoConfigList(Collections.singletonList(fileInfoConfig1));
+        makerFileConfig.setFiles(Collections.singletonList(fileInfoConfig1));
 
         // 配置分组
         TemplateMakerFileConfig.FileGroupConfig fileGroupConfig = new TemplateMakerFileConfig.FileGroupConfig();
@@ -122,11 +123,19 @@ public class TemplateMakerTest {
         TemplateMakerFileConfig makerFileConfig = new TemplateMakerFileConfig();
         TemplateMakerFileConfig.FileInfoConfig fileInfoConfig = new TemplateMakerFileConfig.FileInfoConfig();
         fileInfoConfig.setPath(fileInputPath2);
-        makerFileConfig.setFileInfoConfigList(Collections.singletonList(fileInfoConfig));
+        makerFileConfig.setFiles(Collections.singletonList(fileInfoConfig));
 
         long id = TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, templateMakerModelConfig, 1753283378534051840L);
         System.out.println("id:" + id);
 
         System.out.println("---------------------    测试完成Spring boot init 项目   makeTemplateBug2 -----------------------");
+    }
+
+    @Test
+    public void makeTemplateWithJSON() {
+        String configStr = ResourceUtil.readUtf8Str("templateMaker.json");
+        TemplateMakerConfig templateMakerConfig = JSONUtil.toBean(configStr, TemplateMakerConfig.class);
+        long id = TemplateMaker.makeTemplate(templateMakerConfig);
+        System.out.println(id);
     }
 }

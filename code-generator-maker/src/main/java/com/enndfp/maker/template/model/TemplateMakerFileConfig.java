@@ -16,7 +16,7 @@ public class TemplateMakerFileConfig {
     /**
      * 文件过滤信息配置列表
      */
-    private List<FileInfoConfig> fileInfoConfigList;
+    private List<FileInfoConfig> files;
 
     /**
      * 文件分组配置
