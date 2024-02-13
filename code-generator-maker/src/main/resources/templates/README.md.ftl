@@ -47,7 +47,7 @@ Windows
 
 示例:
 ``` bash
-./generator generate <#list modelConfig.models as modelInfo><#if modelInfo.groupKey??><#else>-${modelInfo.abbr} </#if></#list>
+./generator generate <#list modelConfig.models as modelInfo><#if modelInfo.groupKey??><#else>-${modelInfo.abbr!"无"} </#if></#list>
 ```
 
 #### 2. 参数说明:
@@ -63,7 +63,7 @@ Windows
 
 默认值: ${subModelInfo.defaultValue?c}
 
-命令缩写: ${subModelInfo.abbr}
+命令缩写: ${subModelInfo.abbr!"无"}
 </#list>
 <#else >
 #### ${modelInfo?index + 1}) ${modelInfo.fieldName}
@@ -74,7 +74,7 @@ Windows
 
 默认值: ${modelInfo.defaultValue?c}
 
-命令缩写: ${modelInfo.abbr}
+命令缩写: ${modelInfo.abbr!"无"}
 </#if>
 </#list>
 
