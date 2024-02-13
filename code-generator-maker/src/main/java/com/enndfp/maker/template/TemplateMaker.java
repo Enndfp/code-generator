@@ -45,86 +45,6 @@ public class TemplateMaker {
      */
     public static final String USER_DIR = "user.dir";
 
-    public static void main(String[] args) {
-        System.out.println("---------------------------------    测试Spring boot init 项目    ----------------------------------------------------");
-        Meta meta = new Meta();
-        // 基本信息
-        meta.setName("spring boot init ");
-        meta.setDescription("spring boot 初始化项目");
-
-        String projectPath = System.getProperty("user.dir");
-        String originProjectPath = FileUtil.normalize(new File(projectPath).getParent() + File.separator + "code-generator-demo-projects" + File.separator + "springboot-init");
-
-        String fileInputPath1 = "src/main/java/com/enndfp/springbootinit/common";
-        String fileInputPath2 = "src/main/resources/application.yml";
-
-        TemplateMakerModelConfig templateMakerModelConfig = new TemplateMakerModelConfig();
-        ArrayList<TemplateMakerModelConfig.ModelInfoConfig> modelInfoConfigList = new ArrayList<>();
-        TemplateMakerModelConfig.ModelGroupConfig modelGroupConfig = new TemplateMakerModelConfig.ModelGroupConfig();
-        modelGroupConfig.setGroupKey("mysql");
-        modelGroupConfig.setGroupName("数据库配置");
-
-        TemplateMakerModelConfig.ModelInfoConfig modelInfoConfig1 = new TemplateMakerModelConfig.ModelInfoConfig();
-        modelInfoConfig1.setFieldName("url");
-        modelInfoConfig1.setType("String");
-        modelInfoConfig1.setDescription("数据库url设置");
-        modelInfoConfig1.setDefaultValue("jdbc:mysql://localhost:3306/my_db");
-        modelInfoConfig1.setAbbr("-h");
-        modelInfoConfig1.setReplaceText("jdbc:mysql://localhost:3306/my_db");
-        modelInfoConfigList.add(modelInfoConfig1);
-
-        TemplateMakerModelConfig.ModelInfoConfig modelInfoConfig2 = new TemplateMakerModelConfig.ModelInfoConfig();
-        modelInfoConfig2.setFieldName("username");
-        modelInfoConfig2.setType("String");
-        modelInfoConfig2.setDescription("账号");
-        modelInfoConfig2.setDefaultValue("root");
-        modelInfoConfig2.setAbbr("-u");
-        modelInfoConfig2.setReplaceText("root");
-        modelInfoConfigList.add(modelInfoConfig2);
-
-        templateMakerModelConfig.setModels(modelInfoConfigList);
-        templateMakerModelConfig.setModelGroupConfig(modelGroupConfig);
-
-
-        // 输入模型参数信息 1
-        Meta.ModelConfig.ModelInfo modelInfo = new Meta.ModelConfig.ModelInfo();
-        modelInfo.setFieldName("className");
-        modelInfo.setDefaultValue("BaseResponse");
-        modelInfo.setType("String");
-        String searchStr = "BaseResponse";
-
-        TemplateMakerFileConfig makerFileConfig = new TemplateMakerFileConfig();
-        TemplateMakerFileConfig.FileInfoConfig fileInfoConfig1 = new TemplateMakerFileConfig.FileInfoConfig();
-        fileInfoConfig1.setPath(fileInputPath1);
-        ArrayList<FileFilterConfig> configArrayList = new ArrayList<>();
-        FileFilterConfig filterConfig1 = FileFilterConfig.builder()
-                .range(FileFilterRangeEnum.FILE_NAME.getValue())
-                .rule(FileFilterRuleEnum.CONTAINS.getValue())
-                .value("Base")
-                .build();
-        configArrayList.add(filterConfig1);
-        fileInfoConfig1.setFilterConfigList(configArrayList);
-
-        TemplateMakerFileConfig.FileInfoConfig fileInfoConfig2 = new TemplateMakerFileConfig.FileInfoConfig();
-        fileInfoConfig2.setPath(fileInputPath2);
-        ArrayList<FileFilterConfig> configArrayList2 = new ArrayList<>();
-        FileFilterConfig filterConfig2 = FileFilterConfig.builder()
-                .build();
-        configArrayList2.add(filterConfig2);
-        fileInfoConfig2.setFilterConfigList(configArrayList2);
-
-        makerFileConfig.setFileInfoConfigList(Arrays.asList(fileInfoConfig1, fileInfoConfig2));
-
-        // 配置分组
-        TemplateMakerFileConfig.FileGroupConfig fileGroupConfig = new TemplateMakerFileConfig.FileGroupConfig();
-        fileGroupConfig.setGroupKey("controller2");
-        fileGroupConfig.setGroupName("测试分组");
-        fileGroupConfig.setCondition("groupName == 'controller'");
-        makerFileConfig.setFileGroupConfig(fileGroupConfig);
-
-        TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, templateMakerModelConfig, 1L);
-    }
-
     /**
      * 生成模板
      *
@@ -277,7 +197,8 @@ public class TemplateMaker {
 
         // 2. 基于字符串替换算法，使用模型参数的字段名称来替换原始文件的指定内容，并使用替换后的内容来创建 FTL 动态模板文件
         String fileContent;
-        if (FileUtil.exist(fileOutputAbsolutePath)) {
+        boolean hasTemplateFile = FileUtil.exist(fileOutputAbsolutePath);
+        if (hasTemplateFile) {
             fileContent = FileUtil.readUtf8String(fileOutputAbsolutePath);
         } else {
             fileContent = FileUtil.readUtf8String(fileInputAbsolutePath);
@@ -300,12 +221,24 @@ public class TemplateMaker {
         fileInfo.setInputPath(fileInputPath);
         fileInfo.setOutputPath(fileOutputPath);
         fileInfo.setType(FileTypeEnum.FILE.getValue());
-        if (newFileContent.equals(fileContent)) {
-            fileInfo.setGenerateType(FileGenerateTypeEnum.STATIC.getValue());
-            fileInfo.setOutputPath(fileInputPath);
+        fileInfo.setGenerateType(FileGenerateTypeEnum.DYNAMIC.getValue());
+
+        // 是否更改了文件内容
+        boolean contentEquals = newFileContent.equals(fileContent);
+        // 存在模版
+        if (hasTemplateFile) {
+            // 存在模版而且又新增了新的“坑”
+            if (!contentEquals) {
+                FileUtil.writeUtf8String(newFileContent, fileOutputAbsolutePath);
+            }
         } else {
-            fileInfo.setGenerateType(FileGenerateTypeEnum.DYNAMIC.getValue());
-            FileUtil.writeUtf8String(newFileContent, fileOutputAbsolutePath);
+            // 不存在模版而且没有更改过文件内容
+            if (contentEquals) {
+                fileInfo.setGenerateType(FileGenerateTypeEnum.STATIC.getValue());
+                fileInfo.setOutputPath(fileInputPath);
+            } else {
+                FileUtil.writeUtf8String(newFileContent, fileOutputAbsolutePath);
+            }
         }
         return fileInfo;
     }
