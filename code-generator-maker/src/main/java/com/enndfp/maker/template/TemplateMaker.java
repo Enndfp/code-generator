@@ -222,7 +222,7 @@ public class TemplateMaker {
             // 生成过的 FTL 模版文件不需要再生成元信息配置
             fileList = fileList.stream().filter(file -> !file.getAbsolutePath().endsWith(TEMPLATE_FILE_SUFFIX)).collect(Collectors.toList());
             for (File file : fileList) {
-                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(file, templateMakerModelConfig, sourceRootPath);
+                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(file, templateMakerModelConfig, sourceRootPath, fileInfoConfig);
                 newFileInfoList.add(fileInfo);
             }
         }
@@ -254,9 +254,13 @@ public class TemplateMaker {
      * @param inputFile                需要制作模板的文件对象
      * @param templateMakerModelConfig 原始模型参数列表 + 替换配置
      * @param sourceRootPath           源文件根路径
+     * @param fileInfoConfig           文件信息配置
      * @return 文件信息
      */
-    private static Meta.FileConfig.FileInfo makeFileTemplate(File inputFile, TemplateMakerModelConfig templateMakerModelConfig, String sourceRootPath) {
+    private static Meta.FileConfig.FileInfo makeFileTemplate(File inputFile,
+                                                             TemplateMakerModelConfig templateMakerModelConfig,
+                                                             String sourceRootPath,
+                                                             TemplateMakerFileConfig.FileInfoConfig fileInfoConfig) {
         // 输入文件的绝对路径
         String fileInputAbsolutePath = FileUtil.normalize(inputFile.getAbsolutePath());
         // 输出模板文件的绝对路径
@@ -293,6 +297,7 @@ public class TemplateMaker {
         Meta.FileConfig.FileInfo fileInfo = new Meta.FileConfig.FileInfo();
         fileInfo.setInputPath(fileOutputPath);
         fileInfo.setOutputPath(fileInputPath);
+        fileInfo.setCondition(fileInfoConfig.getCondition());
         fileInfo.setType(FileTypeEnum.FILE.getValue());
         fileInfo.setGenerateType(FileGenerateTypeEnum.DYNAMIC.getValue());
 

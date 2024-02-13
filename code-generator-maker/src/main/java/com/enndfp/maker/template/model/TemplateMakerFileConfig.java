@@ -33,6 +33,11 @@ public class TemplateMakerFileConfig {
         private String path;
 
         /**
+         * 生成条件
+         */
+        private String condition;
+
+        /**
          * 文件过滤配置
          */
         private List<FileFilterConfig> filterConfigList;
