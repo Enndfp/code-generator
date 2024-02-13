@@ -67,5 +67,15 @@ public class TemplateMakerModelConfig {
          * 控制该组的生成条件
          */
         private String condition;
+
+        /**
+         * 类型
+         */
+        private String type;
+
+        /**
+         * 描述
+         */
+        private String description;
     }
 }
