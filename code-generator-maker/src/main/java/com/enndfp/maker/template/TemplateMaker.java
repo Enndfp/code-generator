@@ -11,10 +11,7 @@ import com.enndfp.maker.meta.enums.FileGenerateTypeEnum;
 import com.enndfp.maker.meta.enums.FileTypeEnum;
 import com.enndfp.maker.template.enums.FileFilterRangeEnum;
 import com.enndfp.maker.template.enums.FileFilterRuleEnum;
-import com.enndfp.maker.template.model.FileFilterConfig;
-import com.enndfp.maker.template.model.TemplateMakerConfig;
-import com.enndfp.maker.template.model.TemplateMakerFileConfig;
-import com.enndfp.maker.template.model.TemplateMakerModelConfig;
+import com.enndfp.maker.template.model.*;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -58,23 +55,26 @@ public class TemplateMaker {
         TemplateMakerFileConfig templateMakerFileConfig = templateMakerConfig.getFileConfig();
         TemplateMakerModelConfig templateMakerModelConfig = templateMakerConfig.getModelConfig();
         Long id = templateMakerConfig.getId();
-        return makeTemplate(meta, originProjectPath, templateMakerFileConfig, templateMakerModelConfig, id);
+        TemplateMakerOutputConfig templateMakerOutputConfig = templateMakerConfig.getOutputConfig();
+        return makeTemplate(meta, originProjectPath, templateMakerFileConfig, templateMakerModelConfig, templateMakerOutputConfig, id);
     }
 
     /**
      * 生成模板
      *
-     * @param newMeta                  元信息
-     * @param originProjectPath        原始项目目录
-     * @param templateMakerFileConfig  原始文件列表 + 过滤配置
-     * @param templateMakerModelConfig 原始模型参数列表 + 替换配置
-     * @param id                       模板 id
+     * @param newMeta                   元信息
+     * @param originProjectPath         原始项目目录
+     * @param templateMakerFileConfig   原始文件列表 + 过滤配置
+     * @param templateMakerModelConfig  原始模型参数列表 + 替换配置
+     * @param templateMakerOutputConfig 输出规则配置
+     * @param id                        模板 id
      * @return 模板 id
      */
     public static long makeTemplate(Meta newMeta,
                                     String originProjectPath,
                                     TemplateMakerFileConfig templateMakerFileConfig,
                                     TemplateMakerModelConfig templateMakerModelConfig,
+                                    TemplateMakerOutputConfig templateMakerOutputConfig,
                                     Long id) {
         // 没有 id 则生成
         if (id == null) {
@@ -136,6 +136,13 @@ public class TemplateMaker {
             modelInfoList.addAll(newModelInfoList);
             modelConfig.setModels(modelInfoList);
             meta.setModelConfig(modelConfig);
+        }
+
+        if (templateMakerOutputConfig != null) {
+            // 文件外层和分组去重
+            if (templateMakerOutputConfig.isRemoveGroupFileFromRoot()) {
+                meta.getFileConfig().setFiles(TemplateMakerUtils.removeGroupFilesFromRoot(meta.getFileConfig().getFiles()));
+            }
         }
 
         // 输出 meta.json 元信息文件

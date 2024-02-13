@@ -32,6 +32,11 @@ public class TemplateMakerConfig {
     private TemplateMakerModelConfig modelConfig = new TemplateMakerModelConfig();
 
     /**
+     * 输出规则配置
+     */
+    private TemplateMakerOutputConfig outputConfig = new TemplateMakerOutputConfig();
+
+    /**
      * 生成的唯一标识 多次生成同一个id 标识为同一个项目
      */
     private Long id;

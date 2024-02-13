@@ -85,8 +85,8 @@ public class TemplateMakerTest {
         fileGroupConfig.setCondition("mysql");
         makerFileConfig.setFileGroupConfig(fileGroupConfig);
 
-        long id = TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, templateMakerModelConfig, null);
-        id = TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, templateMakerModelConfig, id);
+        long id = TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, templateMakerModelConfig, null, null);
+        id = TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, templateMakerModelConfig, null, id);
         System.out.println("id:" + id);
 
         System.out.println("---------------------------------    测试完成Spring boot init 项目    ----------------------------------------------------");
@@ -125,7 +125,7 @@ public class TemplateMakerTest {
         fileInfoConfig.setPath(fileInputPath2);
         makerFileConfig.setFiles(Collections.singletonList(fileInfoConfig));
 
-        long id = TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, templateMakerModelConfig, 1753283378534051840L);
+        long id = TemplateMaker.makeTemplate(meta, originProjectPath, makerFileConfig, templateMakerModelConfig, null, 1753283378534051840L);
         System.out.println("id:" + id);
 
         System.out.println("---------------------    测试完成Spring boot init 项目   makeTemplateBug2 -----------------------");
@@ -150,6 +150,10 @@ public class TemplateMakerTest {
         long id = TemplateMaker.makeTemplate(templateMakerConfig);
 
         configStr = ResourceUtil.readUtf8Str(rootPath + "templateMaker1.json");
+        templateMakerConfig = JSONUtil.toBean(configStr, TemplateMakerConfig.class);
+        TemplateMaker.makeTemplate(templateMakerConfig);
+
+        configStr = ResourceUtil.readUtf8Str(rootPath + "templateMaker2.json");
         templateMakerConfig = JSONUtil.toBean(configStr, TemplateMakerConfig.class);
         TemplateMaker.makeTemplate(templateMakerConfig);
 
