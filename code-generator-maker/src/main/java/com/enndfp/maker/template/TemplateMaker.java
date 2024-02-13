@@ -94,64 +94,10 @@ public class TemplateMaker {
         String sourceRootPath = FileUtil.normalize(templatePath + File.separator + FileUtil.getLastPathEle(Paths.get(originProjectPath)));
 
         // 生成模版文件
-        List<TemplateMakerFileConfig.FileInfoConfig> infoConfigList = templateMakerFileConfig.getFiles();
-        List<Meta.FileConfig.FileInfo> newFileInfoList = new ArrayList<>();
+        List<Meta.FileConfig.FileInfo> newFileInfoList = makeFileTemplates(templateMakerFileConfig, templateMakerModelConfig, sourceRootPath);
 
-        // 模型处理
-        List<TemplateMakerModelConfig.ModelInfoConfig> models = templateMakerModelConfig.getModels();
-        List<Meta.ModelConfig.ModelInfo> inputModelInfoList = models.stream().map(modelInfoConfig -> {
-            Meta.ModelConfig.ModelInfo modelInfo = new Meta.ModelConfig.ModelInfo();
-            BeanUtil.copyProperties(modelInfoConfig, modelInfo);
-            return modelInfo;
-        }).collect(Collectors.toList());
-        List<Meta.ModelConfig.ModelInfo> newModelInfoList = new ArrayList<>();
-        TemplateMakerModelConfig.ModelGroupConfig modelGroupConfig = templateMakerModelConfig.getModelGroupConfig();
-        if (modelGroupConfig != null) {
-            String groupKey = modelGroupConfig.getGroupKey();
-            String groupName = modelGroupConfig.getGroupName();
-            String condition = modelGroupConfig.getCondition();
-            Meta.ModelConfig.ModelInfo groupModelInfo = new Meta.ModelConfig.ModelInfo();
-            groupModelInfo.setGroupName(groupName);
-            groupModelInfo.setGroupKey(groupKey);
-            groupModelInfo.setCondition(condition);
-            groupModelInfo.setModels(inputModelInfoList);
-            newModelInfoList.add(groupModelInfo);
-        } else {
-            // 不分组
-            newModelInfoList.addAll(inputModelInfoList);
-        }
-
-        for (TemplateMakerFileConfig.FileInfoConfig fileInfoConfig : infoConfigList) {
-            String fileInputPath = fileInfoConfig.getPath();
-            String inputFileAbsolutePath = FileUtil.normalize(sourceRootPath + File.separator + fileInputPath);
-
-            List<File> fileList = FileFilter.doFilter(inputFileAbsolutePath, fileInfoConfig.getFilterConfigList());
-            // 生成过的 FTL 模版文件不需要再生成元信息配置
-            fileList = fileList.stream().filter(file -> !file.getAbsolutePath().endsWith(TEMPLATE_FILE_SUFFIX)).collect(Collectors.toList());
-            for (File file : fileList) {
-                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(file, templateMakerModelConfig, sourceRootPath);
-                newFileInfoList.add(fileInfo);
-            }
-        }
-
-        // 如果是文件组配置，则需要将文件信息添加到组中
-        TemplateMakerFileConfig.FileGroupConfig fileGroupConfig = templateMakerFileConfig.getFileGroupConfig();
-        if (fileGroupConfig != null) {
-            String groupKey = fileGroupConfig.getGroupKey();
-            String groupName = fileGroupConfig.getGroupName();
-            String condition = fileGroupConfig.getCondition();
-
-            // 新增组配置
-            Meta.FileConfig.FileInfo fileGroup = new Meta.FileConfig.FileInfo();
-            fileGroup.setGroupKey(groupKey);
-            fileGroup.setGroupName(groupName);
-            fileGroup.setCondition(condition);
-            fileGroup.setType(FileTypeEnum.GROUP.getValue());
-
-            fileGroup.setFiles(newFileInfoList);
-            newFileInfoList = new ArrayList<>();
-            newFileInfoList.add(fileGroup);
-        }
+        // 处理模型信息
+        List<Meta.ModelConfig.ModelInfo> newModelInfoList = getModelInfoList(templateMakerModelConfig);
 
         // 3. 使用输入信息来创建 meta.json 元信息文件
         String metaOutputPath = FileUtil.normalize(templatePath + File.separator + META_FILE_NAME);
@@ -191,6 +137,103 @@ public class TemplateMaker {
         FileUtil.writeUtf8String(JSONUtil.toJsonPrettyStr(meta), metaOutputPath);
 
         return id;
+    }
+
+    /**
+     * 获取模型配置
+     *
+     * @param templateMakerModelConfig 模型配置
+     * @return 模型信息
+     */
+    private static List<Meta.ModelConfig.ModelInfo> getModelInfoList(TemplateMakerModelConfig templateMakerModelConfig) {
+        List<Meta.ModelConfig.ModelInfo> newModelInfoList = new ArrayList<>();
+        // 非空校验
+        if (templateMakerModelConfig == null) {
+            return newModelInfoList;
+        }
+
+        List<TemplateMakerModelConfig.ModelInfoConfig> models = templateMakerModelConfig.getModels();
+        if (CollUtil.isEmpty(models)) {
+            return newModelInfoList;
+        }
+
+        // 处理模型信息
+        List<Meta.ModelConfig.ModelInfo> inputModelInfoList = models.stream().map(modelInfoConfig -> {
+            Meta.ModelConfig.ModelInfo modelInfo = new Meta.ModelConfig.ModelInfo();
+            BeanUtil.copyProperties(modelInfoConfig, modelInfo);
+            return modelInfo;
+        }).collect(Collectors.toList());
+        TemplateMakerModelConfig.ModelGroupConfig modelGroupConfig = templateMakerModelConfig.getModelGroupConfig();
+        if (modelGroupConfig != null) {
+            String groupKey = modelGroupConfig.getGroupKey();
+            String groupName = modelGroupConfig.getGroupName();
+            String condition = modelGroupConfig.getCondition();
+            Meta.ModelConfig.ModelInfo groupModelInfo = new Meta.ModelConfig.ModelInfo();
+            groupModelInfo.setGroupName(groupName);
+            groupModelInfo.setGroupKey(groupKey);
+            groupModelInfo.setCondition(condition);
+            groupModelInfo.setModels(inputModelInfoList);
+            newModelInfoList.add(groupModelInfo);
+        } else {
+            // 不分组
+            newModelInfoList.addAll(inputModelInfoList);
+        }
+        return newModelInfoList;
+    }
+
+    /**
+     * 生成多个文件
+     *
+     * @param templateMakerFileConfig  文件配置
+     * @param templateMakerModelConfig 模型配置
+     * @param sourceRootPath           源文件路径
+     * @return 文件列表
+     */
+    private static List<Meta.FileConfig.FileInfo> makeFileTemplates(TemplateMakerFileConfig templateMakerFileConfig, TemplateMakerModelConfig templateMakerModelConfig, String sourceRootPath) {
+        List<Meta.FileConfig.FileInfo> newFileInfoList = new ArrayList<>();
+        // 非空校验
+        if (templateMakerFileConfig == null) {
+            return newFileInfoList;
+        }
+
+        List<TemplateMakerFileConfig.FileInfoConfig> infoConfigList = templateMakerFileConfig.getFiles();
+        if (CollUtil.isEmpty(infoConfigList)) {
+            return newFileInfoList;
+        }
+
+        // 生成模版文件
+        for (TemplateMakerFileConfig.FileInfoConfig fileInfoConfig : infoConfigList) {
+            String fileInputPath = fileInfoConfig.getPath();
+            String inputFileAbsolutePath = FileUtil.normalize(sourceRootPath + File.separator + fileInputPath);
+
+            List<File> fileList = FileFilter.doFilter(inputFileAbsolutePath, fileInfoConfig.getFilterConfigList());
+            // 生成过的 FTL 模版文件不需要再生成元信息配置
+            fileList = fileList.stream().filter(file -> !file.getAbsolutePath().endsWith(TEMPLATE_FILE_SUFFIX)).collect(Collectors.toList());
+            for (File file : fileList) {
+                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(file, templateMakerModelConfig, sourceRootPath);
+                newFileInfoList.add(fileInfo);
+            }
+        }
+
+        // 如果是文件组配置，则需要将文件信息添加到组中
+        TemplateMakerFileConfig.FileGroupConfig fileGroupConfig = templateMakerFileConfig.getFileGroupConfig();
+        if (fileGroupConfig != null) {
+            String groupKey = fileGroupConfig.getGroupKey();
+            String groupName = fileGroupConfig.getGroupName();
+            String condition = fileGroupConfig.getCondition();
+
+            // 新增组配置
+            Meta.FileConfig.FileInfo fileGroup = new Meta.FileConfig.FileInfo();
+            fileGroup.setGroupKey(groupKey);
+            fileGroup.setGroupName(groupName);
+            fileGroup.setCondition(condition);
+            fileGroup.setType(FileTypeEnum.GROUP.getValue());
+
+            fileGroup.setFiles(newFileInfoList);
+            newFileInfoList = new ArrayList<>();
+            newFileInfoList.add(fileGroup);
+        }
+        return newFileInfoList;
     }
 
     /**
