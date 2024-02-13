@@ -148,6 +148,11 @@ public class TemplateMakerTest {
         String configStr = ResourceUtil.readUtf8Str(rootPath + "templateMaker.json");
         TemplateMakerConfig templateMakerConfig = JSONUtil.toBean(configStr, TemplateMakerConfig.class);
         long id = TemplateMaker.makeTemplate(templateMakerConfig);
+
+        configStr = ResourceUtil.readUtf8Str(rootPath + "templateMaker1.json");
+        templateMakerConfig = JSONUtil.toBean(configStr, TemplateMakerConfig.class);
+        TemplateMaker.makeTemplate(templateMakerConfig);
+
         System.out.println(id);
     }
 }

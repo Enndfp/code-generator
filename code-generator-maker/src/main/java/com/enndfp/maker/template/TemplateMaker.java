@@ -91,7 +91,12 @@ public class TemplateMaker {
         }
 
         // 工作空间的目录
-        String sourceRootPath = FileUtil.normalize(templatePath + File.separator + FileUtil.getLastPathEle(Paths.get(originProjectPath)));
+        String sourceRootPath = FileUtil.normalize(FileUtil.loopFiles(new File(templatePath), 1, null)
+                .stream()
+                .filter(File::isDirectory)
+                .findFirst()
+                .orElseThrow(RuntimeException::new)
+                .getAbsolutePath());
 
         // 生成模版文件
         List<Meta.FileConfig.FileInfo> newFileInfoList = makeFileTemplates(templateMakerFileConfig, templateMakerModelConfig, sourceRootPath);
