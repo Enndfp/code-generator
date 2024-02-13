@@ -138,7 +138,7 @@ public class TemplateMaker {
         }
 
         // 3. 使用输入信息来创建 meta.json 元信息文件
-        String metaOutputPath = FileUtil.normalize(sourceRootPath + File.separator + META_FILE_NAME);
+        String metaOutputPath = FileUtil.normalize(templatePath + File.separator + META_FILE_NAME);
 
         // 构造配置参数
         Meta meta;

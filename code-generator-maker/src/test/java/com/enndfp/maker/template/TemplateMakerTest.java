@@ -103,7 +103,8 @@ public class TemplateMakerTest {
         String projectPath = System.getProperty("user.dir");
         String originProjectPath = FileUtil.normalize(new File(projectPath).getParent() + File.separator + "code-generator-demo-projects" + File.separator + "springboot-init");
 
-        String fileInputPath2 = "src/main/java/com/enndfp/springbootinit/common";
+//        String fileInputPath2 = "src/main/java/com/enndfp/springbootinit/common";
+        String fileInputPath2 = "./";
 
         TemplateMakerModelConfig templateMakerModelConfig = new TemplateMakerModelConfig();
         ArrayList<TemplateMakerModelConfig.ModelInfoConfig> modelInfoConfigList = new ArrayList<>();
