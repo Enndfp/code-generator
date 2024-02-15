@@ -53,7 +53,7 @@ const GeneratorAdminPage: React.FC = () => {
     {
       title: 'id',
       dataIndex: 'id',
-      valueType: 'text',
+      valueType: 'index',
       hideInForm: true,
     },
     {

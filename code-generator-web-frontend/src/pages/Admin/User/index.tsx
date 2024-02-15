@@ -52,7 +52,7 @@ const UserAdminPage: React.FC = () => {
     {
       title: 'id',
       dataIndex: 'id',
-      valueType: 'text',
+      valueType: 'index',
       hideInForm: true,
     },
     {
