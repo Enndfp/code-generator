@@ -228,7 +228,8 @@ const GeneratorAdminPage: React.FC = () => {
     },
   ];
   return (
-    <PageContainer>
+    <div className="generator-admin-page">
+      <Typography.Title level={4} style={{ marginBottom: 16 }}>生成器管理</Typography.Title>
       <ProTable<API.Generator>
         headerTitle={'查询表格'}
         actionRef={actionRef}
@@ -290,7 +291,7 @@ const GeneratorAdminPage: React.FC = () => {
           setUpdateModalVisible(false);
         }}
       />
-    </PageContainer>
+    </div>
   );
 };
 export default GeneratorAdminPage;

@@ -3,6 +3,7 @@
 generated
 *.iml
 .temp
+application-local.yml
 
 
 ### Java template
