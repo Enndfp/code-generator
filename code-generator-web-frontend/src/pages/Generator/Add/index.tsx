@@ -19,6 +19,7 @@ import { ProFormItem } from '@ant-design/pro-form';
 import { history } from '@umijs/max';
 import { message, UploadFile } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
+import ModelConfigForm from "@/pages/Generator/Add/components/ModelConfigForm";
 
 /**
  * 创建生成器页面
@@ -159,7 +160,7 @@ const GeneratorAddPage: React.FC = () => {
             {/* todo 待补充 */}
           </StepsForm.StepForm>
           <StepsForm.StepForm name="modelConfig" title="模型配置">
-            {/* todo 待补充 */}
+            <ModelConfigForm formRef={formRef} oldData={oldData} />
           </StepsForm.StepForm>
           <StepsForm.StepForm name="dist" title="生成器文件">
             <ProFormItem label="产物包" name="distPath">
