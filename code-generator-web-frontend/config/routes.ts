@@ -36,6 +36,13 @@ export default [
     hideInMenu: true,
   },
   {
+    path: '/generator/use/:id',
+    icon: 'home',
+    component: './Generator/Use',
+    name: '使用生成器',
+    hideInMenu: true,
+  },
+  {
     path: '/admin',
     icon: 'crown',
     name: '管理页',

@@ -121,7 +121,9 @@ const GeneratorDetailPage: React.FC = () => {
             <Typography.Paragraph type="secondary">作者：{data.author}</Typography.Paragraph>
             <div style={{ marginBottom: 24 }} />
             <Space size="middle">
-              <Button type="primary">立即使用</Button>
+              <Link to={`/generator/use/${id}`}>
+                <Button type="primary">立即使用</Button>
+              </Link>
               {downloadButton}
               {editButton}
             </Space>
