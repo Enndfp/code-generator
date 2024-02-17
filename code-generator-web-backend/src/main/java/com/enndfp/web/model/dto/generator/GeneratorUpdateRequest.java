@@ -1,6 +1,6 @@
 package com.enndfp.web.model.dto.generator;
 
-import com.enndfp.web.meta.Meta;
+import com.enndfp.maker.meta.Meta;
 import lombok.Data;
 
 import java.io.Serializable;

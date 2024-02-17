@@ -41,8 +41,8 @@ export const requestConfig: RequestConfig = {
         throw new Error('服务异常');
       }
 
-      // 文件下载时，直接返回
-      if (requestPath.includes("download")) {
+      // 文件下载时 直接返回
+      if (data instanceof Blob) {
         return response;
       }
 

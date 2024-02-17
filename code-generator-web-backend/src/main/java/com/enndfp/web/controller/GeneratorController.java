@@ -15,7 +15,7 @@ import com.enndfp.web.constant.UserConstant;
 import com.enndfp.web.exception.BusinessException;
 import com.enndfp.web.exception.ThrowUtils;
 import com.enndfp.web.manager.CosManager;
-import com.enndfp.web.meta.Meta;
+import com.enndfp.maker.meta.Meta;
 import com.enndfp.web.model.dto.generator.*;
 import com.enndfp.web.model.entity.Generator;
 import com.enndfp.web.model.entity.User;
