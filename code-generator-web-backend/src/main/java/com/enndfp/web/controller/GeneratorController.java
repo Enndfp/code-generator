@@ -3,6 +3,7 @@ package com.enndfp.web.controller;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.enndfp.maker.generator.main.GenerateTemplate;
 import com.enndfp.maker.generator.main.ZipGenerator;
@@ -217,13 +218,10 @@ public class GeneratorController {
         long size = generatorQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<Generator> generatorPage = generatorService.page(new Page<>(current, size),
-                generatorService.getQueryWrapper(generatorQueryRequest));
+        QueryWrapper<Generator> queryWrapper = generatorService.getQueryWrapper(generatorQueryRequest);
+        queryWrapper.select("id", "name", "description", "tags", "picture", "status", "userId", "createTime", "updateTime");
+        Page<Generator> generatorPage = generatorService.page(new Page<>(current, size), queryWrapper);
         Page<GeneratorVO> generatorVOPage = generatorService.getGeneratorVOPage(generatorPage, request);
-        generatorVOPage.getRecords().forEach(generatorVO -> {
-            generatorVO.setFileConfig(null);
-            generatorVO.setModelConfig(null);
-        });
         return ResultUtils.success(generatorVOPage);
     }
 
