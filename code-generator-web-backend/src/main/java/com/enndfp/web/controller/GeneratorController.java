@@ -6,6 +6,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.enndfp.maker.generator.main.GenerateTemplate;
 import com.enndfp.maker.generator.main.ZipGenerator;
+import com.enndfp.maker.meta.Meta;
 import com.enndfp.maker.meta.MetaValidator;
 import com.enndfp.web.annotation.AuthCheck;
 import com.enndfp.web.common.BaseResponse;
@@ -16,7 +17,6 @@ import com.enndfp.web.constant.UserConstant;
 import com.enndfp.web.exception.BusinessException;
 import com.enndfp.web.exception.ThrowUtils;
 import com.enndfp.web.manager.CosManager;
-import com.enndfp.maker.meta.Meta;
 import com.enndfp.web.model.dto.generator.*;
 import com.enndfp.web.model.entity.Generator;
 import com.enndfp.web.model.entity.User;
@@ -284,28 +284,38 @@ public class GeneratorController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
 
-        String filepath = generator.getDistPath();
-        if (StrUtil.isBlank(filepath)) {
+        String distPath = generator.getDistPath();
+        if (StrUtil.isBlank(distPath)) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "产物包不存在");
         }
 
         // 追踪事件
-        log.info("用户 {} 下载了 {}", loginUser, filepath);
+        log.info("用户 {} 下载了 {}", loginUser, distPath);
+
+        // 设置响应头
+        response.setContentType("application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + distPath);
+
+        // 优先从缓存中读取
+        String cacheFilePath = getCacheFilePath(id, distPath);
+        if (FileUtil.exist(cacheFilePath)) {
+            // 写入响应
+            Files.copy(Paths.get(cacheFilePath), response.getOutputStream());
+            return;
+        }
 
         COSObjectInputStream cosObjectInput = null;
         try {
-            COSObject cosObject = cosManager.getObject(filepath);
+            COSObject cosObject = cosManager.getObject(distPath);
             cosObjectInput = cosObject.getObjectContent();
             // 处理下载到的流
             byte[] bytes = IOUtils.toByteArray(cosObjectInput);
-            // 设置响应头
-            response.setContentType("application/octet-stream;charset=UTF-8");
-            response.setHeader("Content-Disposition", "attachment; filename=" + filepath);
+
             // 写入响应
             response.getOutputStream().write(bytes);
             response.getOutputStream().flush();
         } catch (Exception e) {
-            log.error("file download error, filepath = " + filepath, e);
+            log.error("file download error, filepath = " + distPath, e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "下载失败");
         } finally {
             if (cosObjectInput != null) {
@@ -485,6 +495,62 @@ public class GeneratorController {
         CompletableFuture.runAsync(() -> {
             FileUtil.del(tempDirPath);
         });
+    }
+
+    /**
+     * 缓存代码生成器
+     *
+     * @param generatorCacheRequest 缓存代码生成器请求
+     * @param request               请求
+     * @param response              响应
+     * @throws IOException IO异常
+     */
+    @PostMapping("/cache")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public void cacheGenerator(@RequestBody GeneratorCacheRequest generatorCacheRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (generatorCacheRequest == null || generatorCacheRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        // 获取生成器
+        long id = generatorCacheRequest.getId();
+        Generator generator = generatorService.getById(id);
+        if (generator == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+
+        String distPath = generator.getDistPath();
+        if (StrUtil.isBlank(distPath)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "产物包不存在");
+        }
+
+        // 缓存空间
+        String cacheFilePath = getCacheFilePath(id, distPath);
+        // 新建文件
+        if (!FileUtil.exist(cacheFilePath)) {
+            FileUtil.touch(cacheFilePath);
+        }
+
+        // 下载到本地
+        try {
+            cosManager.download(distPath, cacheFilePath);
+        } catch (InterruptedException e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "压缩包下载失败");
+        }
+    }
+
+    /**
+     * 获取缓存文件路径
+     *
+     * @param id
+     * @param distPath
+     * @return
+     */
+    public String getCacheFilePath(long id, String distPath) {
+        String projectPath = System.getProperty("user.dir");
+        String tempDirPath = String.format("%s/.temp/cache/%s", projectPath, id);
+        String zipFilePath = String.format("%s/%s", tempDirPath, distPath);
+        return zipFilePath;
     }
 
 }
