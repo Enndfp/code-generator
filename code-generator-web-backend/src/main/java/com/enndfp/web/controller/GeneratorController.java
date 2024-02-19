@@ -19,6 +19,7 @@ import com.enndfp.web.common.ResultUtils;
 import com.enndfp.web.constant.UserConstant;
 import com.enndfp.web.exception.BusinessException;
 import com.enndfp.web.exception.ThrowUtils;
+import com.enndfp.web.manager.CacheManager;
 import com.enndfp.web.manager.CosManager;
 import com.enndfp.web.model.dto.generator.*;
 import com.enndfp.web.model.entity.Generator;
@@ -69,7 +70,7 @@ public class GeneratorController {
     private CosManager cosManager;
 
     @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    private CacheManager cacheManager;
 
     // region 增删改查
 
@@ -226,9 +227,9 @@ public class GeneratorController {
         long size = generatorQueryRequest.getPageSize();
         // 优先从缓存读取
         String cacheKey = getPageCacheKey(generatorQueryRequest);
-        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
-        String cacheValue = valueOperations.get(cacheKey);
-        if (StrUtil.isNotBlank(cacheValue)) {
+
+        String cacheValue = cacheManager.get(cacheKey);
+        if (cacheValue != null) {
             Page<GeneratorVO> generatorVOPage = JSONUtil.toBean(cacheValue,
                     new TypeReference<Page<GeneratorVO>>() {
                     }, false);
@@ -241,7 +242,7 @@ public class GeneratorController {
         Page<Generator> generatorPage = generatorService.page(new Page<>(current, size), queryWrapper);
         Page<GeneratorVO> generatorVOPage = generatorService.getGeneratorVOPage(generatorPage, request);
         // 写入缓存
-        valueOperations.set(cacheKey, JSONUtil.toJsonStr(generatorVOPage), 100, TimeUnit.MINUTES);
+        cacheManager.put(cacheKey, JSONUtil.toJsonStr(generatorVOPage));
         return ResultUtils.success(generatorVOPage);
     }
 
