@@ -5,7 +5,6 @@ import com.enndfp.web.annotation.AuthCheck;
 import com.enndfp.web.common.BaseResponse;
 import com.enndfp.web.common.ErrorCode;
 import com.enndfp.web.common.ResultUtils;
-import com.enndfp.web.constant.FileConstant;
 import com.enndfp.web.constant.UserConstant;
 import com.enndfp.web.exception.BusinessException;
 import com.enndfp.web.manager.CosManager;

@@ -2,7 +2,6 @@ package com.enndfp.web.controller;
 
 import cn.hutool.core.codec.Base64Encoder;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.*;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -32,8 +31,6 @@ import com.qcloud.cos.model.COSObjectInputStream;
 import com.qcloud.cos.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -48,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 代码生成器接口
