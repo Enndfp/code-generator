@@ -1,7 +1,6 @@
 package com.enndfp.maker.generator.main;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.enndfp.maker.generator.GitGenerator;

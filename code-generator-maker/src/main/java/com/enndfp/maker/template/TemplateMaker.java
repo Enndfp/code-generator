@@ -9,13 +9,16 @@ import cn.hutool.json.JSONUtil;
 import com.enndfp.maker.meta.Meta;
 import com.enndfp.maker.meta.enums.FileGenerateTypeEnum;
 import com.enndfp.maker.meta.enums.FileTypeEnum;
-import com.enndfp.maker.template.enums.FileFilterRangeEnum;
-import com.enndfp.maker.template.enums.FileFilterRuleEnum;
-import com.enndfp.maker.template.model.*;
+import com.enndfp.maker.template.model.TemplateMakerConfig;
+import com.enndfp.maker.template.model.TemplateMakerFileConfig;
+import com.enndfp.maker.template.model.TemplateMakerModelConfig;
+import com.enndfp.maker.template.model.TemplateMakerOutputConfig;
 
 import java.io.File;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -178,7 +181,7 @@ public class TemplateMaker {
         TemplateMakerModelConfig.ModelGroupConfig modelGroupConfig = templateMakerModelConfig.getModelGroupConfig();
         if (modelGroupConfig != null) {
             Meta.ModelConfig.ModelInfo groupModelInfo = new Meta.ModelConfig.ModelInfo();
-            BeanUtil.copyProperties(modelGroupConfig,groupModelInfo);
+            BeanUtil.copyProperties(modelGroupConfig, groupModelInfo);
             groupModelInfo.setModels(inputModelInfoList);
             newModelInfoList.add(groupModelInfo);
         } else {
