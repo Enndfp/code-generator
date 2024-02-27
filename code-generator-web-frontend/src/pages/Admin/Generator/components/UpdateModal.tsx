@@ -18,8 +18,8 @@ interface Props {
  * @param fields
  */
 const handleUpdate = async (fields: API.GeneratorUpdateRequest) => {
-  fields.modelConfig = JSON.parse((fields.modelConfig || "{}") as string);
-  fields.fileConfig = JSON.parse((fields.fileConfig || "{}") as string);
+  fields.modelConfig = JSON.parse((fields.modelConfig || '{}') as string);
+  fields.fileConfig = JSON.parse((fields.fileConfig || '{}') as string);
   const hide = message.loading('正在更新');
   try {
     await updateGeneratorUsingPost(fields);
@@ -48,9 +48,12 @@ const UpdateModal: React.FC<Props> = (props) => {
   return (
     <Modal
       destroyOnClose
-      title={'更新'}
+      title={'修改生成器'}
       open={visible}
       footer={null}
+      style={{
+        textAlign: 'center',
+      }}
       onCancel={() => {
         onCancel?.();
       }}
@@ -62,8 +65,6 @@ const UpdateModal: React.FC<Props> = (props) => {
           initialValues: {
             ...oldData,
             tags: JSON.parse(oldData.tags || '[]'),
-            versionControl: oldData.versionControl === 1 ? '开启' : '关闭',
-            forcedInteractive: oldData.forcedInteractive === 1 ? '开启' : '关闭'
           },
         }}
         onSubmit={async (values: API.GeneratorAddRequest) => {

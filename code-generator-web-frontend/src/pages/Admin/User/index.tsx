@@ -5,7 +5,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
 import '@umijs/max';
-import { Button, message, Space, Typography } from 'antd';
+import {Button, Image, message, Space, Tag, Typography} from 'antd';
 import React, { useRef, useState } from 'react';
 
 /**
@@ -50,44 +50,59 @@ const UserAdminPage: React.FC = () => {
    */
   const columns: ProColumns<API.User>[] = [
     {
-      title: 'id',
+      title: '序号',
       dataIndex: 'id',
-      valueType: 'index',
+      valueType: 'indexBorder',
       hideInForm: true,
+      width: 48,
+      align: 'center',
+      render: (_, record, index) => (
+        <Tag color="blue" style={{ borderRadius: '20px' }}>
+          {index + 1}
+        </Tag>
+      ),
     },
     {
       title: '账号',
       dataIndex: 'userAccount',
       valueType: 'text',
+      align: 'center',
     },
     {
       title: '用户名',
       dataIndex: 'userName',
       valueType: 'text',
+      align: 'center',
     },
     {
       title: '头像',
       dataIndex: 'userAvatar',
       valueType: 'image',
-      fieldProps: {
-        width: 64,
-      },
+      align: 'center',
+      render: (_, record) => (
+        <div>
+          <Image src={record.userAvatar} width={64} height={64} />
+        </div>
+      ),
       hideInSearch: true,
     },
     {
       title: '简介',
       dataIndex: 'userProfile',
       valueType: 'textarea',
+      align: 'center',
     },
     {
-      title: '权限',
+      title: '角色',
       dataIndex: 'userRole',
+      valueType: 'radio',
+      align: 'center',
       valueEnum: {
         user: {
-          text: '用户',
+          text: <Tag color="default">用户</Tag>
         },
         admin: {
-          text: '管理员',
+          text: <Tag color="success">管理员</Tag>
         },
       },
     },
@@ -98,6 +113,7 @@ const UserAdminPage: React.FC = () => {
       valueType: 'dateTime',
       hideInSearch: true,
       hideInForm: true,
+      align: 'center',
     },
     {
       title: '更新时间',
@@ -106,9 +122,11 @@ const UserAdminPage: React.FC = () => {
       valueType: 'dateTime',
       hideInSearch: true,
       hideInForm: true,
+      align: 'center',
     },
     {
       title: '操作',
+      align: 'center',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => (
@@ -132,7 +150,7 @@ const UserAdminPage: React.FC = () => {
     <div className="user-admin-page">
       <Typography.Title level={4} style={{ marginBottom: 16 }}>用户管理</Typography.Title>
       <ProTable<API.User>
-        headerTitle={'查询表格'}
+        headerTitle={'用户列表'}
         actionRef={actionRef}
         rowKey="key"
         search={{

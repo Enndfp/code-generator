@@ -1,15 +1,13 @@
-import {
-  listGeneratorVoByPageFastUsingPost,
-  listGeneratorVoByPageUsingPost
-} from '@/services/backend/generatorController';
-import { UserOutlined } from '@ant-design/icons';
-import { PageContainer, ProFormText } from '@ant-design/pro-components';
-import { ProFormSelect, QueryFilter } from '@ant-design/pro-form/lib';
-import { Avatar, Card, Flex, Image, Input, List, message, Tabs, Tag, Typography } from 'antd';
+import {listGeneratorVoByPageFastUsingPost} from '@/services/backend/generatorController';
+import {UserOutlined} from '@ant-design/icons';
+import {PageContainer} from '@ant-design/pro-components';
+import {ProFormSelect, QueryFilter} from '@ant-design/pro-form/lib';
+import {Alert, Avatar, Card, Flex, Image, Input, List, message, Tag, Typography} from 'antd';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 // @ts-ignore
 import {Link} from "umi";
+import Marquee from 'react-fast-marquee';
 
 /**
  * 默认分页参数
@@ -73,12 +71,20 @@ const IndexPage: React.FC = () => {
 
   return (
     <PageContainer title={<></>}>
+      <Alert
+        banner
+        type="success"
+        message={
+          <Marquee pauseOnHover gradient={false}>
+            欢迎各位使用蜂巢代码生成器，一起来制作出属于你的 CodeGenerator 吧！相信我，利用好这里，一定能够帮助你大幅提高开发效率！
+          </Marquee>
+        }
+      />
+
+      <div style={{ marginBottom: 16 }} />
+
       <Flex justify="center">
       <Input.Search
-        style={{
-          width: '40vw',
-          minWidth: 320,
-        }}
         placeholder="搜索代码生成器"
         allowClear
         enterButton="搜索"
@@ -96,22 +102,6 @@ const IndexPage: React.FC = () => {
       </Flex>
       <div style={{ marginBottom: 16 }} />
 
-      <Tabs
-        size="large"
-        defaultActiveKey="newest"
-        items={[
-          {
-            key: 'newest',
-            label: '最新',
-          },
-          {
-            key: 'recommend',
-            label: '推荐',
-          },
-        ]}
-        onChange={() => {}}
-      />
-
       <QueryFilter
         span={12}
         labelWidth="auto"
@@ -128,8 +118,6 @@ const IndexPage: React.FC = () => {
         }}
       >
         <ProFormSelect label="标签" name="tags" mode="tags" />
-        <ProFormText label="名称" name="name" />
-        <ProFormText label="描述" name="description" />
       </QueryFilter>
 
       <div style={{ marginBottom: 24 }} />

@@ -40,9 +40,12 @@ const CreateModal: React.FC<Props> = (props) => {
   return (
     <Modal
       destroyOnClose
-      title={'创建'}
+      title={'创建用户'}
       open={visible}
       footer={null}
+      style={{
+        textAlign: 'center',
+      }}
       onCancel={() => {
         onCancel?.();
       }}

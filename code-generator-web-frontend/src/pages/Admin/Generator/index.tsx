@@ -1,13 +1,16 @@
 import CreateModal from '@/pages/Admin/Generator/components/CreateModal';
 import UpdateModal from '@/pages/Admin/Generator/components/UpdateModal';
-import { deleteGeneratorUsingPost, listGeneratorByPageUsingPost } from '@/services/backend/generatorController';
+import {
+  deleteGeneratorUsingPost,
+  listGeneratorByPageUsingPost,
+} from '@/services/backend/generatorController';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { PageContainer, ProTable } from '@ant-design/pro-components';
+import { ProTable } from '@ant-design/pro-components';
+import ProField from '@ant-design/pro-field/lib';
 import '@umijs/max';
-import {Button, message, Select, Space, Tag, Typography} from 'antd';
+import { Button, Image, message, Modal, Select, Space, Tag, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
-import ProField from "@ant-design/pro-field/lib";
 
 /**
  * 代码生成器管理页面
@@ -29,37 +32,62 @@ const GeneratorAdminPage: React.FC = () => {
    * @param row
    */
   const handleDelete = async (row: API.Generator) => {
-    const hide = message.loading('正在删除');
-    if (!row) return true;
-    try {
-      await deleteGeneratorUsingPost({
-        id: row.id as any,
-      });
-      hide();
-      message.success('删除成功');
-      actionRef?.current?.reload();
-      return true;
-    } catch (error: any) {
-      hide();
-      message.error('删除失败，' + error.message);
-      return false;
-    }
+    // 使用Modal.confirm展示确认对话框
+    Modal.confirm({
+      title: '确认删除',
+      content: '你确定要删除这条记录吗？这个操作是不可逆的',
+      okText: '确认',
+      okType: 'danger',
+      centered: true,
+      cancelText: '取消',
+      onOk: async () => {
+        // 用户确认删除操作
+        const hide = message.loading('正在删除');
+        if (!row) return true;
+        try {
+          await deleteGeneratorUsingPost({
+            id: row.id as any,
+          });
+          hide();
+          message.success('删除成功');
+          actionRef?.current?.reload();
+          return true;
+        } catch (error: any) {
+          hide();
+          message.error('删除失败，' + error.message);
+          return false;
+        }
+      },
+      onCancel() {
+        // 用户取消删除操作
+        console.log('取消删除');
+      },
+    });
   };
 
+  // @ts-ignore
   /**
    * 表格列配置
    */
   const columns: ProColumns<API.Generator>[] = [
     {
-      title: 'id',
+      title: '序号',
       dataIndex: 'id',
-      valueType: 'index',
+      valueType: 'indexBorder',
       hideInForm: true,
+      width: 48,
+      align: 'center',
+      render: (_, record, index) => (
+        <Tag color="blue" style={{ borderRadius: '20px' }}>
+          {index + 1}
+        </Tag>
+      ),
     },
     {
       title: '名称',
       dataIndex: 'name',
       valueType: 'text',
+      align: 'center',
     },
     {
       title: '描述',
@@ -67,32 +95,37 @@ const GeneratorAdminPage: React.FC = () => {
       valueType: 'textarea',
       ellipsis: true,
       hideInSearch: true,
+      align: 'center',
     },
     {
       title: '基础包',
       dataIndex: 'basePackage',
       valueType: 'text',
       hideInSearch: true,
+      align: 'center',
     },
     {
       title: '作者',
       dataIndex: 'author',
       valueType: 'text',
+      align: 'center',
     },
     {
       title: '版本',
       dataIndex: 'version',
       valueType: 'text',
       hideInSearch: true,
+      align: 'center',
     },
     {
       title: '标签',
       dataIndex: 'tags',
       valueType: 'select',
+      align: 'center',
       renderFormItem: (schema) => {
         const { fieldProps } = schema;
         // @ts-ignore
-        return <Select mode="tags" {...fieldProps}/>
+        return <Select mode="tags" {...fieldProps} />;
       },
       render(_, record) {
         if (!record.tags) {
@@ -107,10 +140,13 @@ const GeneratorAdminPage: React.FC = () => {
       title: '图片',
       dataIndex: 'picture',
       valueType: 'image',
-      fieldProps: {
-        width: 64,
-      },
+      render: (_, record) => (
+        <div>
+          <Image src={record.picture} width={80} height={60} />
+        </div>
+      ),
       hideInSearch: true,
+      align: 'center',
     },
     {
       title: '文件配置',
@@ -122,8 +158,10 @@ const GeneratorAdminPage: React.FC = () => {
         if (!record.fileConfig) {
           return '{}';
         }
-        return <ProField text={JSON.stringify(record.fileConfig)} mode="read" valueType="jsonCode" />;
-      }
+        return (
+          <ProField text={JSON.stringify(record.fileConfig)} mode="read" valueType="jsonCode" />
+        );
+      },
     },
     {
       title: '模型配置',
@@ -135,8 +173,10 @@ const GeneratorAdminPage: React.FC = () => {
         if (!record.modelConfig) {
           return '{}';
         }
-        return <ProField text={JSON.stringify(record.modelConfig)} mode="read" valueType="jsonCode" />;
-      }
+        return (
+          <ProField text={JSON.stringify(record.modelConfig)} mode="read" valueType="jsonCode" />
+        );
+      },
     },
     {
       title: '状态',
@@ -144,51 +184,62 @@ const GeneratorAdminPage: React.FC = () => {
       valueType: 'select',
       hideInForm: true,
       valueEnum: {
-        0: {
-          text: '默认',
-        },
+        0: { text: <Tag color="success">正常</Tag>, status: 'Success' },
+        1: { text: <Tag color="error">关闭</Tag>, status: 'Error' },
       },
+      align: 'center',
     },
     {
       title: '产物路径',
       dataIndex: 'distPath',
       valueType: 'text',
+      ellipsis: true,
       hideInSearch: true,
       hideInForm: true,
+      align: 'center',
     },
     {
       title: '版本控制',
       dataIndex: 'versionControl',
+      valueType: 'radio',
       hideInSearch: true,
-      initialValue: true,
       valueEnum: {
         1: {
-          text: '开启',
+          text: <Tag color="success">开启</Tag>,
+          status: 'Success',
         },
         0: {
-          text: '关闭',
+          text: <Tag color="warning">关闭</Tag>,
+          status: 'Default',
         },
       },
+      align: 'center',
     },
     {
       title: '强制交互',
       dataIndex: 'forcedInteractive',
+      valueType: 'radio',
       hideInSearch: true,
-      initialValue: true,
       valueEnum: {
         1: {
-          text: '开启',
+          text: <Tag color="success">开启</Tag>,
+          status: 'Success',
         },
         0: {
-          text: '关闭',
+          text: <Tag color="warning">关闭</Tag>,
+          status: 'Default',
         },
       },
+      align: 'center',
     },
     {
       title: '创建用户',
       dataIndex: 'userId',
       valueType: 'text',
       hideInForm: true,
+      hideInTable: true,
+      hideInSearch: true,
+      align: 'center',
     },
     {
       title: '创建时间',
@@ -197,6 +248,7 @@ const GeneratorAdminPage: React.FC = () => {
       valueType: 'dateTime',
       hideInSearch: true,
       hideInForm: true,
+      align: 'center',
     },
     {
       title: '更新时间',
@@ -205,9 +257,11 @@ const GeneratorAdminPage: React.FC = () => {
       valueType: 'dateTime',
       hideInSearch: true,
       hideInForm: true,
+      align: 'center',
     },
     {
       title: '操作',
+      align: 'center',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => (
@@ -229,9 +283,11 @@ const GeneratorAdminPage: React.FC = () => {
   ];
   return (
     <div className="generator-admin-page">
-      <Typography.Title level={4} style={{ marginBottom: 16 }}>生成器管理</Typography.Title>
+      <Typography.Title level={4} style={{ marginBottom: 16 }}>
+        生成器管理
+      </Typography.Title>
       <ProTable<API.Generator>
-        headerTitle={'查询表格'}
+        headerTitle={'生成器列表'}
         actionRef={actionRef}
         rowKey="key"
         search={{

@@ -46,9 +46,12 @@ const UpdateModal: React.FC<Props> = (props) => {
   return (
     <Modal
       destroyOnClose
-      title={'更新'}
+      title={'修改用户'}
       open={visible}
       footer={null}
+      style={{
+        textAlign: 'center',
+      }}
       onCancel={() => {
         onCancel?.();
       }}
